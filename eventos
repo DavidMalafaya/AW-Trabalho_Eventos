@@ -1,1 +1,77 @@
+const fs = require('fs');
 
+//return all eventos
+exports.getAll = async (req, res) => {
+    //read local data json file
+    const datajson = fs.readFileSync("data/local/data.json", "utf-8"); 
+    //parse to json
+    const data = JSON.parse(datajson);
+    //returns eventos array
+    return res.send(data.eventos);
+}
+
+//return eventos by his id (eventos number)
+exports.getById = async (req, res) => {
+    //get eventos id requested
+    const id = req.params.number;
+    //read local data json file
+    const datajson = fs.readFileSync("data/local/data.json", "utf-8"); 
+    //parse to json
+    const data = JSON.parse(datajson);
+    //finds eventos by his id
+    const eventos = data.eventos.filter(eventos => eventos.number == id);
+    //return eventos
+    res.send(eventos);
+}
+
+//creates eventos
+exports.create = async (req, res) => {
+    //get requested eventos properties
+    const {number, name } = req.body;
+    //read local data json file
+    const datajson = fs.readFileSync("data/local/data.json", "utf-8"); 
+    //parse to json
+    const data = JSON.parse(datajson);
+    //add to eventos array
+    data.eventoss.push(req.body);
+    //add to eventos array
+    fs.writeFileSync('data/local/data.json', JSON.stringify(data));
+    //return new eventos
+    return res.status(201).send(req.body);
+}
+
+//updates eventos
+exports.update = async (req, res) => {
+    const { number, name } = req.body;
+    //read local data json file
+    const datajson = fs.readFileSync("data/local/data.json", "utf-8");
+    //parse to json
+    const data = JSON.parse(datajson);
+    //find eventos to update
+    const eventos = data.eventos.find(eventos => eventos.number == number);
+    //update properties
+    eventos.name = name;
+    eventos.number = number;
+    //update local database
+    fs.writeFileSync('data/local/data.json', JSON.stringify(data));
+    //return updated eventos
+    return res.send({number, name });
+}
+
+//delete eventos by his id (eventos number)
+exports.delete = async (req, res) => {
+    //get eventos id requested
+    const id = req.params.number;
+    //read local data json file
+    const datajson = fs.readFileSync("data/local/data.json", "utf-8"); 
+    //parse to json
+    const data = JSON.parse(datajson);
+    //find eventos to delete
+    const eventos = data.eventos.filter(eventos => eventos.number == id);
+    //delete eventos
+    data.eventos.splice(eventos, 1);
+    //update local database
+    fs.writeFileSync('data/local/data.json', JSON.stringify(data));
+    //return ok
+    return res.status(200).send("ok");
+}
