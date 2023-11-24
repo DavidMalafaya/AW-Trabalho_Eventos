@@ -1,1 +1,77 @@
+const fs = require('fs');
 
+//return all categorias
+exports.getAll = async (req, res) => {
+    //read local data json file
+    const datajson = fs.readFileSync("data/local/data.json", "utf-8"); 
+    //parse to json
+    const data = JSON.parse(datajson);
+    //returns categorias array
+    return res.send(data.categorias);
+}
+
+//return categoria by his id (categoria number)
+exports.getById = async (req, res) => {
+    //get categoria id requested
+    const id = req.params.number;
+    //read local data json file
+    const datajson = fs.readFileSync("data/local/data.json", "utf-8"); 
+    //parse to json
+    const data = JSON.parse(datajson);
+    //finds categoria by his id
+    const categoria = data.categoria.filter(categoria => categoria.number == id);
+    //return categoria
+    res.send(categoria);
+}
+
+//creates categoria
+exports.create = async (req, res) => {
+    //get requested categoria properties
+    const {name, number } = req.body;
+    //read local data json file
+    const datajson = fs.readFileSync("data/local/data.json", "utf-8"); 
+    //parse to json
+    const data = JSON.parse(datajson);
+    //add to categorias array
+    data.categoria.push(req.body);
+    //add to categorias array
+    fs.writeFileSync('data/local/data.json', JSON.stringify(data));
+    //return new categoria
+    return res.status(201).send(req.body);
+}
+
+//updates categoria
+exports.update = async (req, res) => {
+    const { number, name } = req.body;
+    //read local data json file
+    const datajson = fs.readFileSync("data/local/data.json", "utf-8");
+    //parse to json
+    const data = JSON.parse(datajson);
+    //find categoria to update
+    const categoria = data.categoria.find(categoria => categoria.number == number);
+    //update properties
+    categoria.name = name;
+    categoria.number = number;
+    //update local database
+    fs.writeFileSync('data/local/data.json', JSON.stringify(data));
+    //return updated categoria
+    return res.send({number, name });
+}
+
+//delete categoria by his id (categoria number)
+exports.delete = async (req, res) => {
+    //get categoria id requested
+    const id = req.params.number;
+    //read local data json file
+    const datajson = fs.readFileSync("data/local/data.json", "utf-8"); 
+    //parse to json
+    const data = JSON.parse(datajson);
+    //find categoria to delete
+    const categoria = data.categoria.filter(categoria => categoria.number == id);
+    //delete categoria
+    data.categoria.splice(categoria, 1);
+    //update local database
+    fs.writeFileSync('data/local/data.json', JSON.stringify(data));
+    //return ok
+    return res.status(200).send("ok");
+}
