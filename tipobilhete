@@ -1,1 +1,79 @@
+const fs = require('fs');
 
+//return all tipobilhete
+exports.getAll = async (req, res) => {
+    //read local data json file
+    const datajson = fs.readFileSync("data/local/data.json", "utf-8"); 
+    //parse to json
+    const data = JSON.parse(datajson);
+    //returns tipobilhete array
+    return res.send(data.tipobilhete);
+}
+
+//return tipobilhete by his id (tipobilhete number)
+exports.getById = async (req, res) => {
+    //get tipobilhete id requested
+    const id = req.params.number;
+    //read local data json file
+    const datajson = fs.readFileSync("data/local/data.json", "utf-8"); 
+    //parse to json
+    const data = JSON.parse(datajson);
+    //finds tipobilhete by his id
+    const tipobilhete = data.tipobilhete.filter(tipobilhete => tipobilhete.number == id);
+    //return tipobilhete
+    res.send(tipobilhete);
+}
+
+//creates tipobilhete
+exports.create = async (req, res) => {
+    //get requested tipobilhete properties
+    const {number, name, city,categoria } = req.body;
+    //read local data json file
+    const datajson = fs.readFileSync("data/local/data.json", "utf-8"); 
+    //parse to json
+    const data = JSON.parse(datajson);
+    //add to tipobilhete array
+    data.tipobilhete.push(req.body);
+    //add to tipobilhete array
+    fs.writeFileSync('data/local/data.json', JSON.stringify(data));
+    //return new tipobilhete
+    return res.status(201).send(req.body);
+}
+
+//updates categoria
+exports.update = async (req, res) => {
+    const { number, name, city, categoria } = req.body;
+    //read local data json file
+    const datajson = fs.readFileSync("data/local/data.json", "utf-8");
+    //parse to json
+    const data = JSON.parse(datajson);
+    //find categoria to update
+    const tipobilhete = data.tipobilhete.find(tipobilhete => tipobilhete.number == number);
+    //update properties
+    tipobilhete.name = name;
+    tipobilhete.city = city;
+    tipobilhete.number = number;
+    tipobilhete.categoria = categoria;
+    //update local database
+    fs.writeFileSync('data/local/data.json', JSON.stringify(data));
+    //return updated tipobilhete
+    return res.send({number, name, city, categoria });
+}
+
+//delete tipobilhete by his id (tipobilhete number)
+exports.delete = async (req, res) => {
+    //get tipobilhete id requested
+    const id = req.params.number;
+    //read local data json file
+    const datajson = fs.readFileSync("data/local/data.json", "utf-8"); 
+    //parse to json
+    const data = JSON.parse(datajson);
+    //find categoria to delete
+    const tipobilhete = data.tipobilhete.filter(tipobilhete => tipobilhete.number == id);
+    //delete categoria
+    data.tipobilhete.splice(tipobilhete, 1);
+    //update local database
+    fs.writeFileSync('data/local/data.json', JSON.stringify(data));
+    //return ok
+    return res.status(200).send("ok");
+}
