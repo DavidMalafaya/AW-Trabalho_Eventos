@@ -1,0 +1,80 @@
+const fs = require('fs');
+
+//return all bilhetes
+exports.getAll = async (req, res) => {
+    //read local data json file
+    const datajson = fs.readFileSync("data/local/data.json", "utf-8"); 
+    //parse to json
+    const data = JSON.parse(datajson);
+    //returns bilhetes array
+    return res.send(data.bilhetes);
+}
+
+//return bilhete by his id (bilhete number)
+exports.getById = async (req, res) => {
+    //get bilhete id requested
+    const id = req.params.number;
+    //read local data json file
+    const datajson = fs.readFileSync("data/local/data.json", "utf-8"); 
+    //parse to json
+    const data = JSON.parse(datajson);
+    //finds bilhete by his id
+    const bilhetes = data.bilhetes.filter(bilhetes => bilhetes.number == id);
+    //return bilhete
+    res.send(bilhetes);
+}
+
+//creates bilhete
+exports.create = async (req, res) => {
+    //get requested bilhetes properties
+    const {number, name, city, artist, hour, day } = req.body;
+    //read local data json file
+    const datajson = fs.readFileSync("data/local/data.json", "utf-8"); 
+    //parse to json
+    const data = JSON.parse(datajson);
+    //add to bilhetes array
+    data.bilhetes.push(req.body);
+    //add to bilhetes array
+    fs.writeFileSync('data/local/data.json', JSON.stringify(data));
+    //return new bilhetes
+    return res.status(201).send(req.body);
+}
+
+//updates categoria
+exports.update = async (req, res) => {
+    const { number, name, city, artist, hour, day } = req.body;
+    //read local data json file
+    const datajson = fs.readFileSync("data/local/data.json", "utf-8");
+    //parse to json
+    const data = JSON.parse(datajson);
+    //find bilhetes to update
+    const bilhetes = data.bilhetes.find(bilhetes => bilhetes.number == number);
+    //update properties
+    bilhetes.name = name;
+    bilhetes.city = city;
+    bilhetes.artist = artist;
+    bilhetes.hour = hour;
+    bilhetes.day = day;
+    //update local database
+    fs.writeFileSync('data/local/data.json', JSON.stringify(data));
+    //return updated categoria
+    return res.send({number, name, city, artist, hour, day });
+}
+
+//delete bilhetes by his id (bilhetes number)
+exports.delete = async (req, res) => {
+    //get bilhetes id requested
+    const id = req.params.number;
+    //read local data json file
+    const datajson = fs.readFileSync("data/local/data.json", "utf-8"); 
+    //parse to json
+    const data = JSON.parse(datajson);
+    //find bilhetes to delete
+    const bilhetes = data.bilhetes.filter(bilhetes => bilhetes.number == id);
+    //delete bilhetes
+    data.bilhetes.splice(bilhetes, 1);
+    //update local database
+    fs.writeFileSync('data/local/data.json', JSON.stringify(data));
+    //return ok
+    return res.status(200).send("ok");
+}
